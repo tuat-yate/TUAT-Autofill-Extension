@@ -1,0 +1,22 @@
+{
+    "manifest_version": 3,
+    "name": "TUAT Autofill Extension",
+    "version": "0.9.0",
+    "description": "東京農工大学の二段階認証を自動化するchrome拡張です。",
+    "permissions": [
+      "storage"
+    ],
+    "content_scripts": [
+      {
+        "matches": ["https://tuat.ex-tic.com/*"],
+        "js": ["jsrsasign-all-min.js","content.js"]
+      }
+    ],
+    "icons":{
+        "128":"icon128.png"
+    },
+    "options_ui": {
+      "page": "options.html"
+    }
+  }
+  
