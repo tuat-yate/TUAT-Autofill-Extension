@@ -18,6 +18,7 @@ https://github.com/tuat-yate/TUAT-Autofill-Extension/assets/56665094/da4b2a94-de
 
 ### ② 拡張機能をインストールする
 本リポジトリもしくはChrome Web Storeから拡張機能をインストールしてください．
+本リポジトリからダウンロードする場合は，`TUAT-Autofill-Extension.zip`を利用してください．
 
 ### ③ 各種設定を入力する．
 chrome画面の拡張機能アイコン(パズルマーク)→TUAT Autofill Extension横の3点ボタン→オプション　をクリックしてください．
