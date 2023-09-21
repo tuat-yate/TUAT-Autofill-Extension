@@ -1,6 +1,7 @@
 # TUAT-Autofill-Extension
 東京農工大学の二段階認証を自動入力するchrome拡張機能です．
-本拡張機能はChrome Web Storeで公開予定です．
+本拡張機能は以下のリンクからChrome Web Storeで導入できます．
+https://chrome.google.com/webstore/detail/tuat-autofill-extension/nnnckhaffpfnflhcgdhikjbkfdhnmode/
 
 ## Overview
 https://github.com/tuat-yate/TUAT-Autofill-Extension/assets/56665094/da4b2a94-ded6-4f18-8dff-6657a7219443
