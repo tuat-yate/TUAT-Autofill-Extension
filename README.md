@@ -12,7 +12,7 @@ https://github.com/tuat-yate/TUAT-Autofill-Extension/assets/56665094/da4b2a94-de
 本拡張機能は東京農工大学統合認証システムで各個人に発行されるシークレットキーが必要です．
 シークレットキーは二段階アプリ認証の登録画面で確認することができます．
 
-<img src="https://github.com/tuat-yate/TUAT-Autofill-Extension/assets/56665094/53fa75c7-2acf-4bcb-b2d8-b85d78f70840" width="320px">
+![スクリーンショット 2023-09-14 18 26 55](https://github.com/tuat-yate/TUAT-Autofill-Extension/assets/56665094/9fd135f8-d571-453c-9dc6-3791b3ac7a39)
 
 〜注意〜  
 - 既にアプリ(Google Authenticatorなど)にキーを登録している場合は一旦キー削除した後に再登録する必要があります．その場合元のキーでは認証ができなくなるため，必ずアプリの方でもキーの再登録を行なってください．  
