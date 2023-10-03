@@ -7,6 +7,7 @@ https://chrome.google.com/webstore/detail/tuat-autofill-extension/nnnckhaffpfnfl
 https://github.com/tuat-yate/TUAT-Autofill-Extension/assets/56665094/da4b2a94-ded6-4f18-8dff-6657a7219443
 
 ## Usage
+本拡張機能の現バージョン(0.9.0)では，初期設定のためにGoogle Authenticatorなどの認証アプリが必要です．これは次回バージョン(0.9.1)で改善予定です．
 
 ### ① 事前準備
 本拡張機能は東京農工大学統合認証システムで各個人に発行されるシークレットキーが必要です．
@@ -27,6 +28,9 @@ chrome画面の拡張機能アイコン(パズルマーク)→TUAT Autofill Exte
 <img src="https://github.com/tuat-yate/TUAT-Autofill-Extension/assets/56665094/53fa75c7-2acf-4bcb-b2d8-b85d78f70840" width="320px">
 
 その後，設定画面で各種情報を入力してください．
+
+また，Google AuthenticatorでQRコードを読み込んで，表示されているトークンを認証サイトに入力して保存を行ってください．
+ここでトークンを認証サイトに入力しない場合，入力されたシークレットキーが無効となるため注意してください．
 
 〜注意〜  
 - 設定画面では「保存」ボタンを押しても特にアクションは起こりません．保存されているか確認したい場合は，一旦設定画面を閉じ，再度開いた時に元の情報が入力されていれば大丈夫です．  
