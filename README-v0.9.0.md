@@ -3,7 +3,7 @@
 本拡張機能は以下のリンクからChrome Web Storeで導入できます．
 https://chrome.google.com/webstore/detail/tuat-autofill-extension/nnnckhaffpfnflhcgdhikjbkfdhnmode/
 
-本ドキュメントはバージョン`0.9.0`に対するドキュメントです。最新バージョンのドキュメントは![こちら](https://github.com/tuat-yate/TUAT-Autofill-Extension/README.md)です。
+本ドキュメントはバージョン`0.9.0`に対するドキュメントです。最新バージョンのドキュメントは[こちら](https://github.com/tuat-yate/TUAT-Autofill-Extension/README.md)です。
 
 ## Overview
 https://github.com/tuat-yate/TUAT-Autofill-Extension/assets/56665094/da4b2a94-ded6-4f18-8dff-6657a7219443
