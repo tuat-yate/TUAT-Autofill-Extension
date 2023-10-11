@@ -2,6 +2,7 @@
   "name": "sirius-TUAT",
   "short_name": "sirius",
   "display": "standalone",
+  "start_URL": "campusweb/portal.do?page=main"
   "icons": [
     {
       "src": "https://raw.githubusercontent.com/tuat-yate/TUAT-Autofill-Extension/main/PWA-manifest/192.png",
