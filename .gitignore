@@ -1,0 +1,4 @@
+# Ignore node_modules
+node_modules/
+manifest_firefox_debug.json
+/dist/*.zip

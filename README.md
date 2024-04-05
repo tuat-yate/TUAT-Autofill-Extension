@@ -53,3 +53,39 @@ chrome画面の拡張機能アイコン(パズルマーク)→TUAT Autofill Exte
 使っていただいた方は是非寄付をお願いします！
 
 <a href="https://www.buymeacoffee.com/yate" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: 41px !important;width: 174px !important;box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" ></a>
+
+## 開発者向けマニュアル
+
+### 要件
+
+- Node.js (おそらく v13 以降)
+
+### 準備
+
+Gitリポジトリをクローンしてシェルを当該ディレクトリで開く
+
+```sh
+npm install
+```
+
+### ビルド
+
+現状自動ビルドはFirefoxのみサポートしている。
+
+```sh
+npm run build:firefox
+```
+
+`dist` ディレクトリに `package_firefox.zip` としてAMOに提出可能なファイルが出力される。
+
+### デバッグ
+
+Firefoxでは「一時的なアドオンを読み込む」機能からデバッグを行う。
+
+https://developer.mozilla.org/ja/docs/Mozilla/Add-ons/WebExtensions/Your_first_WebExtension
+
+下記コマンドにより `TUAT-Autofill-Extension/manifest_firefox_debug.json` が生成されるため、これを指定するとデバッグが可能になる。
+
+```sh
+npm run build:debugfirefox
+```

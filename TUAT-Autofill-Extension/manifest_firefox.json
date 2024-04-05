@@ -1,0 +1,5 @@
+{
+  "host_permissions": [
+    "https://tuat.ex-tic.com/*"
+  ]
+}
