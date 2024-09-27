@@ -5,7 +5,7 @@
 [![](https://img.shields.io/chrome-web-store/rating/nnnckhaffpfnflhcgdhikjbkfdhnmode)](https://chrome.google.com/webstore/detail/tuat-autofill-extension/nnnckhaffpfnflhcgdhikjbkfdhnmode/)
 
 東京農工大学の二段階認証を自動入力するchrome拡張機能です．
-本拡張機能は[このリンク](https://chrome.google.com/webstore/detail/tuat-autofill-extension/nnnckhaffpfnflhcgdhikjbkfdhnmode/)からChrome Web Storeで導入できます．
+本拡張機能は[ここ](https://chromewebstore.google.com/detail/tuat-autofill-extension/nnnckhaffpfnflhcgdhikjbkfdhnmode)からChrome Web Storeで導入できます．
 
 ## Overview
 https://github.com/tuat-yate/TUAT-Autofill-Extension/assets/56665094/da4b2a94-ded6-4f18-8dff-6657a7219443
