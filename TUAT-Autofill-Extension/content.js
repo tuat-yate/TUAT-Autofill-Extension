@@ -92,3 +92,43 @@ document.getElementByXPath = function(sValue) { var a = this.evaluate(sValue, th
         }
     });
 })();
+
+function showDonationButton() {
+    const donationContainer = document.createElement('div');
+    donationContainer.style.position = 'fixed';
+    donationContainer.style.bottom = '0';
+    donationContainer.style.left = '0';
+    donationContainer.style.width = '100%';
+    donationContainer.style.textAlign = 'center';
+    donationContainer.style.backgroundColor = '#f8f9fa';
+    donationContainer.style.padding = '10px';
+    donationContainer.style.borderTop = '1px solid #dee2e6';
+    donationContainer.style.zIndex = '9999';
+
+    const donationText = document.createElement('p');
+    donationText.innerText = 'この拡張機能が役に立ったら、寄付を検討していただけると嬉しいです！';
+    donationText.style.margin = '0 0 10px 0';
+    donationText.style.fontSize = '14px';
+
+    const donationLink = document.createElement('a');
+    donationLink.href = 'https://www.buymeacoffee.com/yate';
+    donationLink.target = '_blank';
+
+    const donationImage = document.createElement('img');
+    donationImage.src = 'https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png';
+    donationImage.alt = 'Buy Me A Coffee';
+    donationImage.style.height = '41px';
+    donationImage.style.width = '174px';
+
+    donationLink.appendChild(donationImage);
+    donationContainer.appendChild(donationText);
+    donationContainer.appendChild(donationLink);
+
+    document.body.appendChild(donationContainer);
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', showDonationButton);
+} else {
+    showDonationButton();
+}
