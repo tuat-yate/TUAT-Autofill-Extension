@@ -1,12 +1,13 @@
 {
   "private": true,
   "name": "tuat-autofill-extension",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "TUAT Autofill Extension",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build:firefox": "npm exec -- ts-node-esm build.mts --firefox",
-    "build:debugfirefox": "npm exec -- ts-node-esm build.mts --firefox --debug"
+    "build:debugfirefox": "npm exec -- ts-node-esm build.mts --firefox --debug",
+    "build:chrome": "npm exec -- ts-node-esm build.mts --chrome"
   },
   "devDependencies": {
     "@types/archiver": "^6.0.2",

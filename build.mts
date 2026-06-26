@@ -11,6 +11,7 @@ const outputDirPath = path.resolve(__dirname, 'dist');
 const workingDirPath = await makeWorkingDir();
 console.log(`Working directory: ${workingDirPath}`);
 const firefoxPackagePath = path.resolve(outputDirPath, 'package_firefox.zip');
+const chromePackagePath = path.resolve(outputDirPath, 'package_chrome.zip');
 const sourceRootDirPath = path.resolve(__dirname, 'TUAT-Autofill-Extension');
 const baseManifestPath = path.resolve(sourceRootDirPath, 'manifest.json');
 const firefoxManifestPath = path.resolve(sourceRootDirPath, 'manifest_firefox.json');
@@ -34,10 +35,10 @@ function mergeManifests(base: any, extension: any) {
   }
 }
 
-async function deleteOldPackage() {
+async function deleteOldPackage(packagePath: string) {
   try {
-    await fsPromise.access(firefoxPackagePath);
-    await fsPromise.unlink(firefoxPackagePath);
+    await fsPromise.access(packagePath);
+    await fsPromise.unlink(packagePath);
   } catch (e) {
     // TODO filter exceptions.
   }
@@ -52,8 +53,8 @@ async function prepareFirefoxManifest(): Promise<string> {
   return tempManifestPath;
 }
 
-async function createPackage(manifestPath: string) {
-  const output = fs.createWriteStream(firefoxPackagePath);
+async function createPackage(manifestPath: string, packagePath: string) {
+  const output = fs.createWriteStream(packagePath);
   const archive = archiver('zip', {
     zlib: {
       level: 9
@@ -127,24 +128,34 @@ async function recursiveAppend(archive: archiver.Archiver, internalPath: string,
 console.log(process.argv);
 
 const buildFirefox = process.argv.includes('--firefox');
+// Chrome and Edge are both Chromium-based and use the same Manifest V3 package.
+const buildChrome = process.argv.includes('--chrome');
 
-if (!buildFirefox) {
-  console.error('NOW SUPPORTS ONLY FIREFOX BUILD');
-  console.log('Usage: build.mjs --firefox [--debug]');
+if (!buildFirefox && !buildChrome) {
+  console.error('No build target specified.');
+  console.log('Usage: build.mjs (--firefox [--debug] | --chrome)');
   process.exit(1);
 }
 
-const debugMode = process.argv.includes('--debug');
+if (buildChrome) {
+  // The base manifest.json is already the Chromium (Chrome/Edge) manifest,
+  // so package it as-is with manifest.json at the zip root.
+  await deleteOldPackage(chromePackagePath);
+  await createPackage(baseManifestPath, chromePackagePath);
+}
 
-if (debugMode) {
-  console.log('Debug mode');
-  const baseManifest = JSON.parse(await fsPromise.readFile(baseManifestPath, 'utf-8'));
-  const firefoxManifest = JSON.parse(await fsPromise.readFile(firefoxManifestPath, 'utf-8'));
-  mergeManifests(baseManifest, firefoxManifest);
-  await fsPromise.writeFile(firefoxDebugManifestPath, JSON.stringify(baseManifest, null, 2));
-} else {
-  const manifestPath = await prepareFirefoxManifest();
-  await deleteOldPackage();
-  await createPackage(manifestPath);
+if (buildFirefox) {
+  const debugMode = process.argv.includes('--debug');
+  if (debugMode) {
+    console.log('Debug mode');
+    const baseManifest = JSON.parse(await fsPromise.readFile(baseManifestPath, 'utf-8'));
+    const firefoxManifest = JSON.parse(await fsPromise.readFile(firefoxManifestPath, 'utf-8'));
+    mergeManifests(baseManifest, firefoxManifest);
+    await fsPromise.writeFile(firefoxDebugManifestPath, JSON.stringify(baseManifest, null, 2));
+  } else {
+    const manifestPath = await prepareFirefoxManifest();
+    await deleteOldPackage(firefoxPackagePath);
+    await createPackage(manifestPath, firefoxPackagePath);
+  }
 }
 
