@@ -107,7 +107,7 @@ async function recursiveAppend(archive: archiver.Archiver, internalPath: string,
   const entries = await fsPromise.readdir(dirPath);
   for (const entry of entries) {
     if (
-      !(entry !== '.') &&
+      entry !== '.' &&
       !entry.endsWith('.map') &&
       !entry.endsWith('.ts')
     ) {

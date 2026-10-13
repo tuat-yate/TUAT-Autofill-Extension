@@ -68,339 +68,211 @@ document.getElementByXPath = function(sValue) { var a = this.evaluate(sValue, th
 
         var uri = new URL(window.location.href);
         if(uri.pathname == '/auth/session'){
-            var id = document.getElementById('identifier');
-            var pass = document.getElementById('password');
-            if(typeof ID === "undefined"){
-                ID = '';
+            // 未設定の項目は上書きしない（ブラウザのパスワード自動入力を活かす）
+            if(ID){
+                document.getElementById('identifier').value = ID;
             }
-            if(typeof PASS === "undefined"){
-                PASS = '';
+            if(PASS){
+                document.getElementById('password').value = PASS;
             }
-            id.value = ID;
-            pass.value = PASS;
-            document.getElementByXPath('//*[@id="login"]/button').click();
+            // 両方揃っているときだけ自動送信する（空のまま送信してログイン失敗を繰り返さないように）
+            if(ID && PASS){
+                document.getElementByXPath('//*[@id="login"]/button').click();
+            }
         }
         if(uri.pathname == '/auth/session/second_factor'){
             document.getElementById('totp-form-selector').click();
-            if(typeof KEY === "undefined"){
-                document.getElementById('totp').value = '';
-            }
-            else{
+            if(KEY){
                 document.getElementById('totp').value = totp(KEY);
                 document.getElementByXPath('//*[@id="totp-form"]/button').click();
             }
+            else{
+                document.getElementById('totp').value = '';
+            }
         }
     });
 })();
 
+function showDonationButton() {
+    const donationContainer = document.createElement('div');
+    donationContainer.style.position = 'fixed';
+    donationContainer.style.bottom = '0';
+    donationContainer.style.left = '0';
+    donationContainer.style.width = '100%';
+    donationContainer.style.textAlign = 'center';
+    donationContainer.style.backgroundColor = '#f8f9fa';
+    donationContainer.style.padding = '10px';
+    donationContainer.style.borderTop = '1px solid #dee2e6';
+    donationContainer.style.zIndex = '9999';
 
+    const donationText = document.createElement('p');
+    donationText.innerText = 'この拡張機能が役に立ったら、寄付を検討していただけると嬉しいです！';
+    donationText.style.margin = '0 0 10px 0';
+    donationText.style.fontSize = '14px';
 
-// Material Symbols フォント読み込み
-(function loadMaterialSymbols() {
-    var link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = 'https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&display=block';
-    document.head.appendChild(link);
+    const donationLink = document.createElement('a');
+    donationLink.href = 'https://www.buymeacoffee.com/yate';
+    donationLink.target = '_blank';
 
-    var style = document.createElement('style');
-    style.textContent = '.tuat-ms{font-family:"Material Symbols Outlined";font-style:normal;font-size:20px;display:inline-block;line-height:1;letter-spacing:normal;text-transform:none;white-space:nowrap;word-wrap:normal;direction:ltr;-webkit-font-smoothing:antialiased;font-variation-settings:"FILL" 0,"wght" 400,"GRAD" 0,"opsz" 24}';
-    document.head.appendChild(style);
-})();
+    const donationImage = document.createElement('img');
+    donationImage.src = 'https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png';
+    donationImage.alt = 'Buy Me A Coffee';
+    donationImage.style.height = '41px';
+    donationImage.style.width = '174px';
 
-function showSettingsButton() {
-    var btn = document.createElement('div');
-    btn.title = 'TUAT Autofill Extension 設定';
-    btn.style.cssText = [
-        'position: fixed',
-        'bottom: 20px',
-        'right: 16px',
-        'width: 48px',
-        'height: 48px',
-        'border-radius: 50%',
-        'background: #4d84b4',
-        'box-shadow: 0 2px 6px rgba(0,0,0,0.3)',
-        'cursor: pointer',
-        'z-index: 99999',
-        'user-select: none',
-        '-webkit-tap-highlight-color: transparent',
-        'display: flex',
-        'align-items: center',
-        'justify-content: center',
-    ].join(';');
+    donationLink.appendChild(donationImage);
+    donationContainer.appendChild(donationText);
+    donationContainer.appendChild(donationLink);
 
-    var icon = document.createElement('span');
-    icon.className = 'tuat-ms notranslate';
-    icon.setAttribute('translate', 'no');
-    icon.textContent = 'settings';
-    icon.style.cssText = 'font-size:28px; color:#ffffff; pointer-events:none;';
-
-    btn.appendChild(icon);
-    btn.addEventListener('click', function () {
-        toggleSettingsPanel();
-    });
-
-    document.body.appendChild(btn);
+    document.body.appendChild(donationContainer);
+    return donationContainer;
 }
 
-// === インライン設定パネル ===
-var settingsPanel = null;
-var totpTimerInterval = null;
-
-function toggleSettingsPanel() {
-    if (settingsPanel) {
-        var isHidden = settingsPanel.style.display === 'none';
-        settingsPanel.style.display = isHidden ? 'block' : 'none';
-        if (isHidden) {
-            loadSettingsToPanel();
-            startTotpTimer();
-        } else {
-            stopTotpTimer();
-        }
-        return;
-    }
-    createSettingsPanel();
-}
-
-function createSettingsPanel() {
-    settingsPanel = document.createElement('div');
-    settingsPanel.style.cssText = [
-        'position: fixed',
-        'bottom: 76px',
-        'right: 12px',
-        'width: min(320px, calc(100vw - 24px))',
-        'background: #FFFFFF',
-        'border: 2px solid #4d84b4',
-        'border-radius: 15px',
-        'box-shadow: 0 10px 30px rgba(0,0,0,0.2)',
-        'z-index: 99999',
-        'font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans", "Helvetica Neue", Arial, sans-serif',
-        'overflow: hidden',
-        'color: #1C1B1F',
-    ].join(';');
-
-    // ヘッダー
-    var headerHtml = [
-        '<div style="padding:14px 16px; background:#4d84b4; display:flex; justify-content:space-between; align-items:center;">',
-        '  <span style="font-size:15px; font-weight:700; color:#fff;">TUAT Autofill Extension 設定</span>',
-        '  <span id="tuat-panel-close" class="tuat-ms notranslate" translate="no" style="color:#fff; cursor:pointer; font-size:22px;">close</span>',
+// === インライン設定パネル（Android版Edgeなどオプションページを開けない環境向け） ===
+function settingsFieldHtml(id, label, secret) {
+    return [
+        '<div class="mb-3">',
+        '  <label for="' + id + '" class="form-label">' + label + '</label>',
+        '  <div class="input-group">',
+        '    <input type="' + (secret ? 'password' : 'text') + '" id="' + id + '" class="form-control" autocomplete="off" autocapitalize="off" spellcheck="false" data-1p-ignore data-lpignore="true" data-form-type="other">',
+        secret ? '    <button type="button" class="btn btn-outline-secondary" data-toggle-for="' + id + '"><i class="bi bi-eye"></i></button>' : '',
+        '  </div>',
         '</div>',
-    ].join('');
+    ].join('\n');
+}
 
-    // フォーム本体
-    var bodyHtml = [
-        '<div style="padding:20px 16px 16px;">',
-        '  <div id="tuat-key-container" style="position:relative; margin-bottom:8px;">',
-        '    <input type="text" id="tuat-cfg-key" placeholder="シークレットキーを入力してください"',
-        '      autocomplete="off" data-1p-ignore data-lpignore="true" data-form-type="other"',
-        '      style="display:block; width:100%; padding:12px 44px 12px 12px; border:1px solid #CAC4D0; border-radius:4px; font-size:14px; box-sizing:border-box; outline:none; background:#fff; color:#1C1B1F; transition:border-color 0.2s; -webkit-text-security:disc;">',
-        '    <span id="tuat-toggle-key" class="tuat-ms notranslate" translate="no" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); cursor:pointer; color:#49454F; user-select:none;">visibility</span>',
-        '  </div>',
-        // Saveボタン（シークレットキー入力欄の直下、横長）
-        '  <div style="margin-bottom:14px;">',
-        '    <button id="tuat-save-btn" style="width:100%; padding:8px 24px; background:#4d84b4; color:#fff; border:none; border-radius:20px; font-size:13px; font-weight:600; cursor:pointer; letter-spacing:0.3px; transition:background 0.2s;">Save</button>',
-        '  </div>',
-        // トークンラベル（左端） + TOTPプレビュー（中央） + 円形タイマー（右端）
-        '  <div style="position:relative; display:flex; align-items:center; justify-content:center; min-height:40px; margin:0 0 0;">',
-        '    <span style="position:absolute; left:0; font-size:12px; font-weight:500; color:#79747E;">トークン</span>',
-        '    <div id="tuat-totp-display" style="font-size:24px; font-weight:700; color:#1C1B1F; letter-spacing:4px; font-family:monospace;"></div>',
-        '    <div id="tuat-timer-area" style="position:absolute; right:0; top:50%; transform:translateY(-50%); visibility:hidden;">',
-        '      <svg id="tuat-timer-svg" width="40" height="40" viewBox="0 0 40 40" style="display:block;">',
-        '        <circle cx="20" cy="20" r="16" fill="none" stroke="#E0E0E0" stroke-width="3"/>',
-        '        <circle id="tuat-timer-arc" cx="20" cy="20" r="16" fill="none" stroke="#4d84b4" stroke-width="3" stroke-linecap="round" stroke-dasharray="100.53" stroke-dashoffset="0" transform="rotate(-90 20 20)"/>',
-        '        <text id="tuat-timer-text" x="20" y="20" text-anchor="middle" dominant-baseline="central" fill="#49454F" font-size="11" font-weight="500">30</text>',
-        '      </svg>',
+function showSettingsButton(bottomOffset) {
+    // Shadow DOM 内の @font-face は読み込まれないため、アイコンフォントはページ側にも読み込む
+    var iconLink = document.createElement('link');
+    iconLink.rel = 'stylesheet';
+    iconLink.href = chrome.runtime.getURL('lib/bootstrap-icons.min.css');
+    document.head.appendChild(iconLink);
+
+    // 入力値（パスワード・シークレットキー）をページ側のスクリプトから読めないよう、closed な Shadow DOM 内に構築する
+    var host = document.createElement('div');
+    host.style.cssText = 'all: initial;';
+    var root = host.attachShadow({ mode: 'closed' });
+    root.innerHTML = [
+        '<link rel="stylesheet" href="' + chrome.runtime.getURL('lib/bootstrap.min.css') + '">',
+        '<link rel="stylesheet" href="' + iconLink.href + '">',
+        // Shadow DOM 内では :root にマッチしないため、data-bs-theme で Bootstrap の CSS 変数を有効にする
+        '<div data-bs-theme="light" class="position-fixed end-0 me-3 d-flex flex-column align-items-end gap-2 fs-6 lh-base text-start" style="bottom:' + (bottomOffset + 16) + 'px; z-index:99999; font-family:var(--bs-body-font-family);">',
+        '  <div id="panel" class="card shadow d-none" style="width:min(320px, calc(100vw - 32px)); max-height:calc(100vh - ' + (bottomOffset + 96) + 'px); overflow-y:auto;">',
+        '    <div class="card-header text-bg-primary d-flex justify-content-between align-items-center">',
+        '      <span class="fw-bold">TUAT Autofill Extension 設定</span>',
+        '      <button id="close" type="button" class="btn-close btn-close-white" aria-label="閉じる"></button>',
+        '    </div>',
+        '    <div class="card-body">',
+        settingsFieldHtml('id', 'ID', false),
+        settingsFieldHtml('pass', 'Password（任意・非推奨）', true),
+        settingsFieldHtml('key', 'シークレットキー', true),
+        '      <button id="save" type="button" class="btn btn-primary w-100">Save</button>',
+        '      <div id="token" class="mt-3 d-none">',
+        '        <div class="d-flex justify-content-between align-items-center">',
+        '          <span class="small text-body-secondary">トークン</span>',
+        '          <span id="totp" class="fs-4 fw-bold font-monospace"></span>',
+        '          <span id="remaining" class="small text-body-secondary"></span>',
+        '        </div>',
+        '        <div class="progress"><div id="timer" class="progress-bar"></div></div>',
+        '      </div>',
+        '      <div id="status" class="small text-success text-center mt-2 invisible">保存しました</div>',
         '    </div>',
         '  </div>',
-        // ステータス表示（生成キーの下に固定スペース確保）
-        '  <div style="text-align:center; height:20px; line-height:20px; margin:0;">',
-        '    <span id="tuat-save-status" style="color:#198754; font-size:12px; font-weight:500; visibility:hidden;"></span>',
-        '  </div>',
+        '  <button id="gear" type="button" class="btn btn-primary rounded-circle shadow d-flex align-items-center justify-content-center" title="TUAT Autofill Extension 設定" style="width:48px; height:48px;"><i class="bi bi-gear-fill fs-4"></i></button>',
         '</div>',
     ].join('\n');
+    document.body.appendChild(host);
 
-    // Buy Me a Coffee フッター
-    var footerHtml = [
-        '<div style="border-top:1px solid #E0E0E0; padding:12px 16px; text-align:center;">',
-        '  <p style="font-size:12px; color:#79747E; margin:0 0 8px;">この拡張機能が役に立ったら、寄付を検討していただけると嬉しいです！</p>',
-        '  <a href="https://www.buymeacoffee.com/yate" target="_blank">',
-        '    <img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height:36px; width:auto;">',
-        '  </a>',
-        '</div>',
-    ].join('\n');
+    var panel = root.getElementById('panel');
+    var idInput = root.getElementById('id');
+    var passInput = root.getElementById('pass');
+    var keyInput = root.getElementById('key');
+    var statusEl = root.getElementById('status');
+    var tokenTimer = null;
+    var savedKey = '';
 
-    settingsPanel.innerHTML = headerHtml + bodyHtml + footerHtml;
-    document.body.appendChild(settingsPanel);
+    // 毎秒現在時刻から再計算する（タブが裏に回ってタイマーが間引かれても古いトークンが残らないように）
+    function updateToken() {
+        var remaining = 30 - (Math.floor(Date.now() / 1000) % 30);
+        root.getElementById('totp').textContent = totp(savedKey);
+        root.getElementById('remaining').textContent = '残り' + remaining + '秒';
+        root.getElementById('timer').style.width = (remaining / 30 * 100) + '%';
+        root.getElementById('timer').classList.toggle('bg-danger', remaining <= 5);
+    }
 
-    // --- イベントリスナー ---
-
-    // 閉じるボタン
-    document.getElementById('tuat-panel-close').addEventListener('click', function () {
-        settingsPanel.style.display = 'none';
-        stopTotpTimer();
-    });
-
-    // 入力フィールドのフォーカススタイル
-    var keyInput = document.getElementById('tuat-cfg-key');
-    keyInput.addEventListener('focus', function () {
-        this.style.borderColor = '#4d84b4';
-        this.style.borderWidth = '2px';
-        this.style.padding = '11px 43px 11px 11px';
-    });
-    keyInput.addEventListener('blur', function () {
-        this.style.borderColor = '#CAC4D0';
-        this.style.borderWidth = '1px';
-        this.style.padding = '12px 44px 12px 12px';
-    });
-
-    // シークレットキー表示切替（Material Symbols）
-    var keyMasked = true;
-    document.getElementById('tuat-toggle-key').addEventListener('click', function () {
-        var inp = document.getElementById('tuat-cfg-key');
-        if (keyMasked) {
-            inp.style.webkitTextSecurity = 'none';
-            this.textContent = 'visibility_off';
-        } else {
-            inp.style.webkitTextSecurity = 'disc';
-            this.textContent = 'visibility';
+    function showToken(key) {
+        savedKey = key;
+        clearInterval(tokenTimer);
+        root.getElementById('token').classList.toggle('d-none', !key);
+        if (key) {
+            updateToken();
+            tokenTimer = setInterval(updateToken, 1000);
         }
-        keyMasked = !keyMasked;
-    });
+    }
 
-    // 保存処理（共通関数）
-    function doSave() {
-        var key = document.getElementById('tuat-cfg-key').value;
+    function closePanel() {
+        panel.classList.add('d-none');
+        clearInterval(tokenTimer);
+    }
 
-        chrome.storage.local.set({ 'key': key }, function () {
-            var statusEl = document.getElementById('tuat-save-status');
-
-            if (key && key.length > 0) {
-                var totpValue = totp(key);
-                document.getElementById('tuat-totp-display').textContent = totpValue;
-                startTotpTimer();
-
-                // クリップボードにTOTPをコピー
-                if (navigator.clipboard && navigator.clipboard.writeText) {
-                    navigator.clipboard.writeText(totpValue).then(function () {
-                        statusEl.textContent = 'コピー済み';
-                        statusEl.style.visibility = 'visible';
-                        setTimeout(function () { statusEl.style.visibility = 'hidden'; statusEl.textContent = ''; }, 3000);
-                    }).catch(function () {
-                        statusEl.textContent = '保存済み';
-                        statusEl.style.visibility = 'visible';
-                        setTimeout(function () { statusEl.style.visibility = 'hidden'; statusEl.textContent = ''; }, 3000);
-                    });
-                } else {
-                    statusEl.textContent = '保存済み';
-                    statusEl.style.visibility = 'visible';
-                    setTimeout(function () { statusEl.style.visibility = 'hidden'; statusEl.textContent = ''; }, 3000);
-                }
-            } else {
-                document.getElementById('tuat-totp-display').textContent = '';
-                stopTotpTimer();
-                statusEl.textContent = '保存済み';
-                statusEl.style.visibility = 'visible';
-                setTimeout(function () { statusEl.style.visibility = 'hidden'; statusEl.textContent = ''; }, 3000);
-            }
+    function save() {
+        var key = keyInput.value;
+        chrome.storage.local.set({ 'id': idInput.value, 'pass': passInput.value, 'key': key }, function () {
+            showToken(key);
+            // 保存時にトークンをクリップボードへコピー
+            var copied = key && navigator.clipboard
+                ? navigator.clipboard.writeText(totp(key)).then(function () { return true; }, function () { return false; })
+                : Promise.resolve(false);
+            copied.then(function (ok) {
+                statusEl.textContent = ok ? '保存しました（トークンをコピー済み）' : '保存しました';
+                statusEl.classList.remove('invisible');
+                setTimeout(function () { statusEl.classList.add('invisible'); }, 3000);
+            });
         });
     }
 
-    // 保存ボタン
-    document.getElementById('tuat-save-btn').addEventListener('click', doSave);
+    root.getElementById('gear').addEventListener('click', function () {
+        if (!panel.classList.contains('d-none')) {
+            closePanel();
+            return;
+        }
+        panel.classList.remove('d-none');
+        chrome.storage.local.get(['id', 'pass', 'key'], function (items) {
+            idInput.value = items.id || '';
+            passInput.value = items.pass || '';
+            keyInput.value = items.key || '';
+            showToken(items.key || '');
+        });
+    });
+    root.getElementById('close').addEventListener('click', closePanel);
+    root.getElementById('save').addEventListener('click', save);
 
-    // シークレットキー入力欄でEnterキー押下時も保存
-    keyInput.addEventListener('keydown', function (e) {
-        if (e.key === 'Enter') {
+    // 入力欄でEnterキー押下時も保存
+    panel.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' && e.target.tagName === 'INPUT') {
             e.preventDefault();
-            doSave();
+            save();
         }
     });
 
-    // 既存データを読み込み
-    loadSettingsToPanel();
-}
-
-function loadSettingsToPanel() {
-    chrome.storage.local.get(['key'], function (items) {
-        document.getElementById('tuat-cfg-key').value = items.key || '';
-        if (items.key && items.key.length > 0) {
-            document.getElementById('tuat-totp-display').textContent = totp(items.key);
-            startTotpTimer();
-        } else {
-            document.getElementById('tuat-totp-display').textContent = '';
-            stopTotpTimer();
-        }
-    });
-}
-
-// === TOTPタイマー（円形） ===
-var TUAT_TIMER_CIRCUMFERENCE = 2 * Math.PI * 16; // r=16 → ≈100.53
-
-function getTotpRemaining() {
-    return 30 - (Math.floor(Date.now() / 1000) % 30);
-}
-
-function startTotpTimer() {
-    stopTotpTimer();
-    var timerArea = document.getElementById('tuat-timer-area');
-    if (!timerArea) return;
-    timerArea.style.visibility = 'visible';
-    updateTotpTimer(true);
-    totpTimerInterval = setInterval(updateTotpTimer, 1000);
-}
-
-function stopTotpTimer() {
-    if (totpTimerInterval) {
-        clearInterval(totpTimerInterval);
-        totpTimerInterval = null;
-    }
-    var timerArea = document.getElementById('tuat-timer-area');
-    if (timerArea) timerArea.style.visibility = 'hidden';
-}
-
-function updateTotpTimer(skipTransition) {
-    var remaining = getTotpRemaining();
-    var arc = document.getElementById('tuat-timer-arc');
-    var text = document.getElementById('tuat-timer-text');
-    if (!arc || !text) return;
-
-    text.textContent = remaining;
-    // 円弧の残量を計算（負の値で時計回りに減少）
-    var offset = -(TUAT_TIMER_CIRCUMFERENCE * (1 - remaining / 30));
-
-    // 初回表示・リセット時はアニメーションを省略
-    if (skipTransition || remaining === 30) {
-        arc.style.transition = 'none';
-        arc.setAttribute('stroke-dashoffset', offset);
-        // 強制リフローでtransition:noneを即座に適用
-        arc.getBoundingClientRect();
-        arc.style.transition = 'stroke-dashoffset 1s linear';
-    } else {
-        arc.style.transition = 'stroke-dashoffset 1s linear';
-        arc.setAttribute('stroke-dashoffset', offset);
-    }
-
-    // 残り5秒以下で警告色
-    if (remaining <= 5) {
-        arc.setAttribute('stroke', '#d32f2f');
-        text.setAttribute('fill', '#d32f2f');
-    } else {
-        arc.setAttribute('stroke', '#4d84b4');
-        text.setAttribute('fill', '#49454F');
-    }
-
-    // 残り0秒でTOTP再生成
-    if (remaining === 30) {
-        chrome.storage.local.get(['key'], function (items) {
-            if (items.key && items.key.length > 0) {
-                document.getElementById('tuat-totp-display').textContent = totp(items.key);
-            }
+    // パスワード・シークレットキーの表示切替
+    panel.querySelectorAll('[data-toggle-for]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var input = root.getElementById(btn.dataset.toggleFor);
+            var masked = input.type === 'password';
+            input.type = masked ? 'text' : 'password';
+            btn.firstElementChild.className = masked ? 'bi bi-eye-slash' : 'bi bi-eye';
         });
-    }
+    });
+}
+
+function showExtensionUI() {
+    // 寄付バナーに重ならないよう、設定ボタンとパネルはバナーの上に配置する
+    showSettingsButton(showDonationButton().offsetHeight);
 }
 
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', showSettingsButton);
+    document.addEventListener('DOMContentLoaded', showExtensionUI);
 } else {
-    showSettingsButton();
+    showExtensionUI();
 }
-//(yulanitの内部管理的にはTUAT-AE-for-Android-0.3.10-openだったもの)
